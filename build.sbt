@@ -4,8 +4,11 @@ description := "Codec for Valve's Master Server Query Protocol"
 
 scalaVersion := "2.12.6"
 libraryDependencies ++= Seq(
-  "org.scodec" %% "scodec-bits" % "1.1.5"
+  "org.scodec"  %% "scodec-core" % "1.10.3",
+  "com.lihaoyi" %% "utest"       % "0.6.3" % "test"
 )
+
+testFrameworks += new TestFramework("utest.runner.Framework")
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 homepage := Some(url("https://github.com/2m/msqp4s"))
