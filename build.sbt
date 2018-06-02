@@ -4,8 +4,9 @@ description := "Codec for Valve's Master Server Query Protocol"
 
 scalaVersion := "2.12.6"
 libraryDependencies ++= Seq(
-  "org.scodec"  %% "scodec-core" % "1.10.3",
-  "com.lihaoyi" %% "utest"       % "0.6.3" % "test"
+  "org.scodec"  %% "scodec-core"      % "1.10.3",
+  "org.scodec"  %% "scodec-protocols" % "1.1.0",
+  "com.lihaoyi" %% "utest"            % "0.6.3" % "test"
 )
 
 testFrameworks += new TestFramework("utest.runner.Framework")

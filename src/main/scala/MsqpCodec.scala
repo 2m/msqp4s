@@ -16,9 +16,10 @@
 
 package lt.dvim.msqp
 
-import scodec.Codec
 import scodec.bits._
+import scodec.Codec
 import scodec.codecs._
+import scodec.protocols.ip
 
 sealed trait Region
 object Region {
@@ -45,17 +46,21 @@ object Region {
     .typecase(255, provide(RestOfTheWorld))
 }
 
-case class IpPort(ip: String, port: Int)
+case class IpPort(address: ip.v4.Address, port: ip.Port)
 object IpPort {
-  implicit val codec: Codec[IpPort] = cstring.xmap[IpPort]({ s =>
-    val Array(ip, port) = s.split(':')
-    IpPort(ip, port.toInt)
-  }, { ipPort =>
-    s"${ipPort.ip}:${ipPort.port}"
-  })
+  implicit val codec: Codec[IpPort] = cstring.xmap[IpPort](s => {
+    val Array(addr, port) = s.split(':')
+    IpPort(ip.v4.Address.fromStringValid(addr), ip.Port(port.toInt))
+  }, ipPort => s"${ipPort.address}:${ipPort.port}")
 }
 
 case class Request(region: Region, ipPort: IpPort, filter: String)
 object Request {
   implicit val codec: Codec[Request] = (constant(hex"31") ~> Region.codec :: IpPort.codec :: cstring).as[Request]
+}
+
+case class Response(servers: List[IpPort])
+object Response {
+  implicit val codec: Codec[Response] =
+    (constant(hex"FFFFFFFF660A") ~> list((ip.v4.Address.codec :: ip.Port.codec).as[IpPort])).as[Response]
 }

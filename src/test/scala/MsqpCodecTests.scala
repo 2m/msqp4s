@@ -18,6 +18,7 @@ package lt.dvim.msqp
 
 import java.nio.file.{Files, Paths}
 
+import scodec.Codec
 import scodec.bits.ByteVector
 import utest._
 
@@ -25,16 +26,16 @@ object MsqpCodecTests extends TestSuite {
 
   val tests = Tests {
     "msqp codec" - {
-      "basic-request" - cycleRequest()
-      //"basic-response" - cycle()
+      "basic-request" - cycle(Request.codec)
+      "basic-response" - cycle(Response.codec)
     }
   }
 
-  def cycleRequest()(implicit path: framework.TestPath) = {
+  def cycle[A](codec: Codec[A])(implicit path: framework.TestPath) = {
     val name = path.value.last
     val original = name.byteVector.toBitVector
-    val decoded = Request.codec.decodeValue(original).require
-    val encoded = Request.codec.encode(decoded).require
+    val decoded = codec.decodeValue(original).require
+    val encoded = codec.encode(decoded).require
     encoded ==> original
   }
 
