@@ -1,0 +1,42 @@
+language: scala
+
+scala:
+  - "2.12.6"
+
+jdk:
+  - oraclejdk8
+
+jobs:
+  include:
+    - stage: check
+      script: sbt scalafmtCheck || { echo "[error] Unformatted code found. Please run 'Test/compile' and commit the reformatted code."; false; }
+      env: SCALAFMT_CHECK
+    - script: sbt scalafmtSbtCheck || { echo "[error] Unformatted sbt code found. Please run 'scalafmtSbt' and commit the reformatted code."; false; }
+env: SCALAFMT_SBT_CHECK
+    
+    - stage: test
+      script: sbt test
+
+    - stage: deploy
+      script: sbt publish
+      if: repo = 2m/msqp4s
+
+    - stage: sync maven central
+      script: sbt bintraySyncMavenCentral
+      if: repo = 2m/msqp4s AND tag =~ ^v
+
+before_cache:
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt  -name "*.lock"               -print -delete
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot
+
+env:
+  global:
+    # travis encrypt BINTRAY_USER=...
+    - secure: "cvBY0LfZ38Z4gs/cEwZ2zA4oVO1PPGTX5bjRyfkoUowA+EbLOIWMv9ixBTxE2RKuM/DEiG+PkFTmiNhD+JFAm4GhZ3vNzICRtJ9mcwrflZiDFtCF/ato3YeOOHo6wNqHjJ+0n0UtMlw5vWSrTYVlim6+m/PPZxGEF0K1yVX9EETKR5sgonN7TwUz2EpgnwF7wN+Hn77qUiqUkpUVQyW8lcr/xi/eJLIDhDsVcyGKunai0kTxJ4QK8W4f7V8mhr2NqH4DRL8dprwrXw8t2UGR7VguXBn61x8Z+1WUHdnv/FGDuytwMXJ9xXZuT1o1j+c6tVZkFmfV5YwCkuEdw60KZz6AZivmVzBZvnfhQiXwqYbzuO2HP7GxDeBlGsOv2iuTnH6PuiNwoV21l78zlfu8AJ5r5wr815QXTi2ErqrMiaOxmEqkI8ANggAyojKapmbWcwdbrJVbpJlTzhKpFpyqoXjy5SZmdShG8yxgl9UEh71o1HCgjL4bEy8mbY52lSspp3KtDuMomf4OEtv9RaFjUByu328rvPQN0uvWwHxvldhR0LTt+kRza+PFPMIa/63JkeGcTQVa4Z4ak7g2jxQxh+4UZpZIiZQbHrD0g8ImuNgExAPwyVGUlnuBv4fsKqb214INxEIby3s+NLdTanQiaQJbUh74OItOTIt3z1wvn8Y="
+    # travis encrypt BINTRAY_PASS=...
+    - secure: "nAxonLhxljNAEEwQA6jfb8nf/g5hIy5iI9n0b5ihdeXdRuC+tLBZx5RFeOOsJ8LCTNS9LNIAFHXpa3dXXJKeFeO4v2TVGdemECPMkAPxq7X+4Y09LJr5UTNCJRLL24fI9qVaRII4NfBSxMKEKxSYpbjKzA/aqNnSBCeLT+JOVjUQ6j9BOEy7AcM6IhfI+sN+ajTJxhtareKajbButDU24/qvaVw2SS89RzvvUbIsurAaE8FFH8APOUNrNJXnqTcoW5BQ8n3FdLeQQ2u4uMaGsp6FY4ETuPHSD6RQ+LIR0EpwHe6MMlmioLwTLP5wQbTUJE2674AICUJcj6hMQk8Z25apTpgqPa9TYeMTyMiEcgoThRoOhdp+0p4aOfEu5G0lokn4I93ln2zm4ZOEuSjmrdzvMrKP0YYK6CLzAdxBqp5r6rQ+APBC3aF9H9jxgTQMtmwgjUl5pRGB8GQA18X3KjJqe4GhcbBYX3EhfhQDU+t31/4QYQ2BrjWElBUrgP5LGB5g04CKpMuKnqumICMZhE5PF3L4TNC9bENRMwdQ6+ZSBzVSqpikO7YlKXbFjAvqxknwtu7TdZSMLaz6wYAtQEzsHOqfVayfFuVKIaNwsL5txK8su0ect5i1v5fwMCOsOQCRuwrzg80e3bF7NAQxIOIlY967dVJ30sdZq0E2mbk="
