@@ -6,4 +6,4 @@
 [gitter]:             https://gitter.im/2m/msqp4s
 [gitter-badge]:       https://badges.gitter.im/2m/msqp4s.svg
 
-Codec for Valve's Master Server Query Protocol.
+Codec for Valve's [Master Server Query Protocol](https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol).
